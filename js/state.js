@@ -1,39 +1,24 @@
-import { PHASES, STORAGE_KEYS } from './data.js';
+import { PHASES } from './data.js';
+import { persist } from './storage.js';
 
-/* ---------- Persistência ---------- */
-function loadJSON(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch { return fallback; }
-}
-
-export function saveJSON(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
-}
-
-export function saveProgress()  { saveJSON(STORAGE_KEYS.progress,  app.progress); }
-export function saveCustom()    { saveJSON(STORAGE_KEYS.custom,    app.custom); }
-export function saveOrder()     { saveJSON(STORAGE_KEYS.order,     app.order); }
-export function saveOverrides() { saveJSON(STORAGE_KEYS.overrides, app.overrides); }
-
-/* ---------- Estado global ---------- */
+/* ============================================================
+   Estado em memória — a única fonte de verdade durante a sessão.
+   ============================================================ */
 export const app = {
-  progress:  loadJSON(STORAGE_KEYS.progress,  {}),
-  custom:    loadJSON(STORAGE_KEYS.custom,    {}),
-  order:     loadJSON(STORAGE_KEYS.order,     {}),
-  overrides: loadJSON(STORAGE_KEYS.overrides, {}),
+  progress:  {},
+  custom:    {},
+  order:     {},
+  overrides: {},
   editingId: null,
   addingPhaseId: null,
+  readOnly: true,
+  isPublic: false,
 };
 
-export function resetProgress() {
-  app.progress = {};
-  saveProgress();
-}
-
-/* ---------- Parser de bullets ----------
-   Linhas iniciadas por "- ", "* " ou "• " viram subs. */
+/* ============================================================
+   Parser de bullets
+   Linhas iniciadas por "- ", "* " ou "• " viram subs.
+   ============================================================ */
 export function parseBullets(raw) {
   if (!raw) return { text: '', subs: [] };
   const lines = String(raw).split(/\r?\n/);
@@ -66,7 +51,9 @@ export function itemToEditorText(item) {
   return lines.join('\n');
 }
 
-/* ---------- Overrides e listagem ---------- */
+/* ============================================================
+   Overrides e ordenação
+   ============================================================ */
 function applyOverride(item) {
   const o = app.overrides[item.id];
   if (!o) return item;
@@ -92,10 +79,7 @@ export function getOrderedItems(phase) {
   const result = [];
 
   for (const id of saved) {
-    if (byId.has(id)) {
-      result.push(byId.get(id));
-      byId.delete(id);
-    }
+    if (byId.has(id)) { result.push(byId.get(id)); byId.delete(id); }
   }
   for (const item of allItems) {
     if (byId.has(item.id)) result.push(item);
@@ -103,14 +87,61 @@ export function getOrderedItems(phase) {
   return result;
 }
 
-/* ---------- Remoção de item personalizado ---------- */
+/* ============================================================
+   Mutadores — sempre chamam persist() ao final
+   ============================================================ */
+
+export function toggleProgress(id, checked) {
+  if (app.readOnly) return;
+  if (checked) app.progress[id] = true;
+  else         delete app.progress[id];
+  persist(app);
+}
+
+export function addCustomItem(phaseId, { title, text, subs }) {
+  if (app.readOnly) return null;
+  const id = `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+  const newItem = { id, title, text };
+  if (subs?.length) newItem.subs = subs;
+
+  if (!app.custom[phaseId]) app.custom[phaseId] = [];
+  app.custom[phaseId].push(newItem);
+
+  persist(app);
+  return id;
+}
+
+export function updateItem(id, { title, text, subs }) {
+  if (app.readOnly) return;
+  const original   = PHASES.flatMap(p => p.items).find(i => i.id === id);
+  const customItem = Object.values(app.custom).flat().find(i => i.id === id);
+
+  if (customItem) {
+    customItem.title = title;
+    customItem.text  = text;
+    if (subs.length) customItem.subs = subs;
+    else             delete customItem.subs;
+    delete app.overrides[id];
+  } else if (original) {
+    const unchanged =
+      title === original.title &&
+      text === (original.text || '') &&
+      JSON.stringify(subs) === JSON.stringify(original.subs || []);
+
+    if (unchanged) delete app.overrides[id];
+    else           app.overrides[id] = { title, text, subs };
+  }
+
+  persist(app);
+}
+
 export function removeCustomItem(id) {
+  if (app.readOnly) return;
   for (const phaseId in app.custom) {
     const idx = app.custom[phaseId].findIndex(i => i.id === id);
     if (idx !== -1) {
       app.custom[phaseId].splice(idx, 1);
       if (app.custom[phaseId].length === 0) delete app.custom[phaseId];
-
       if (app.order[phaseId]) {
         app.order[phaseId] = app.order[phaseId].filter(x => x !== id);
         if (app.order[phaseId].length === 0) delete app.order[phaseId];
@@ -120,14 +151,19 @@ export function removeCustomItem(id) {
   }
   delete app.progress[id];
   delete app.overrides[id];
-
-  saveCustom(); saveProgress(); saveOrder(); saveOverrides();
+  persist(app);
 }
 
-/* ---------- Reorder ---------- */
 export function persistOrder(phaseId, ids) {
+  if (app.readOnly) return;
   app.order[phaseId] = ids;
-  saveOrder();
+  persist(app);
+}
+
+export function resetProgress() {
+  if (app.readOnly) return;
+  app.progress = {};
+  persist(app);
 }
 
 export { PHASES };

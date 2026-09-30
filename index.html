@@ -1,118 +1,128 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Linha Temporal de Progressão — Minecraft 1.21</title>
-  <meta name="description" content="Linha do tempo interativa para acompanhar sua progressão completa no Minecraft, do primeiro bloco de terra até o farol do Wither.">
-  <meta name="theme-color" content="#0b0e13">
-  <meta name="author" content="Seu Nome">
+    <title>Linha Temporal de Progressão — Minecraft 1.21</title>
+    <meta name="description"
+        content="Linha do tempo interativa para acompanhar sua progressão completa no Minecraft, do primeiro bloco de terra até o farol do Wither.">
+    <meta name="theme-color" content="#0b0e13">
+    <meta name="author" content="Seu Nome">
 
-  <!-- Open Graph / Social -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Linha Temporal de Progressão — Minecraft 1.21">
-  <meta property="og:description" content="Acompanhe sua progressão completa no Minecraft, fase a fase.">
-  <meta property="og:image" content="https://SEU-DOMINIO.vercel.app/assets/og-image.png">
-  <meta name="twitter:card" content="summary_large_image">
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Linha Temporal de Progressão — Minecraft 1.21">
+    <meta property="og:description" content="Acompanhe sua progressão completa no Minecraft, fase a fase.">
+    <meta property="og:image" content="https://SEU-DOMINIO.vercel.app/assets/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
-<!-- ================= SPRITE DE ÍCONES ================= -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <defs>
-    <symbol id="i-house" viewBox="0 0 24 24">
-      <path fill="currentColor" d="M12 2 1 11.6h3.1V22h5.4v-6.6h5V22h5.4V11.6H23L12 2z"/>
-    </symbol>
-    <symbol id="i-cube" viewBox="0 0 24 24">
-      <path fill="currentColor" opacity=".4"  d="M12 2 22 7v10l-10 5L2 17V7l10-5z"/>
-      <path fill="currentColor"                  d="M12 2 22 7l-10 5L2 7l10-5z"/>
-      <path fill="currentColor" opacity=".72" d="M2 7l10 5v10L2 17V7z"/>
-      <path fill="currentColor" opacity=".9"  d="M22 7l-10 5v10l10-5V7z"/>
-    </symbol>
-    <symbol id="i-flame" viewBox="0 0 24 24">
-      <path fill="currentColor" d="M12.6 1.4c.7 3.7-.9 5.3-2.6 7C8.1 10.2 6.3 12.1 6.3 15.4a5.7 5.7 0 0 0 11.4 0c0-2.7-1.1-4.5-2.2-6.4-.5 1.5-1.4 2.3-2.5 2.3 1.4-3.5.7-7.3-.4-9.9z"/>
-    </symbol>
-    <symbol id="i-end" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9.4" fill="none" stroke="currentColor" stroke-width="2.3" opacity=".45"/>
-      <circle cx="12" cy="12" r="5.8" fill="none" stroke="currentColor" stroke-width="2"/>
-      <circle cx="12" cy="12" r="2.3" fill="currentColor"/>
-    </symbol>
-    <symbol id="i-beacon" viewBox="0 0 24 24">
-      <rect x="10" y="0" width="4" height="9" fill="currentColor" opacity=".45"/>
-      <path fill="currentColor" d="M12 8.4 3.4 21.6h17.2L12 8.4z"/>
-    </symbol>
-    <symbol id="i-grip" viewBox="0 0 24 24">
-      <circle cx="9"  cy="6"  r="1.7" fill="currentColor"/>
-      <circle cx="15" cy="6"  r="1.7" fill="currentColor"/>
-      <circle cx="9"  cy="12" r="1.7" fill="currentColor"/>
-      <circle cx="15" cy="12" r="1.7" fill="currentColor"/>
-      <circle cx="9"  cy="18" r="1.7" fill="currentColor"/>
-      <circle cx="15" cy="18" r="1.7" fill="currentColor"/>
-    </symbol>
-    <symbol id="i-plus" viewBox="0 0 24 24">
-      <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor"
-            stroke-width="2.6" stroke-linecap="round"/>
-    </symbol>
-    <symbol id="i-pencil" viewBox="0 0 24 24">
-      <path d="M4 20h4L20 8a2.8 2.8 0 0 0-4-4L4 16v4z"
-            fill="none" stroke="currentColor"
-            stroke-width="1.9" stroke-linejoin="round"/>
-      <path d="M14.5 5.5 18.5 9.5" fill="none" stroke="currentColor"
-            stroke-width="1.9" stroke-linecap="round"/>
-    </symbol>
-  </defs>
-</svg>
+    <!-- ================= SPRITE DE ÍCONES ================= -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="i-house" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12 2 1 11.6h3.1V22h5.4v-6.6h5V22h5.4V11.6H23L12 2z" />
+            </symbol>
+            <symbol id="i-cube" viewBox="0 0 24 24">
+                <path fill="currentColor" opacity=".4" d="M12 2 22 7v10l-10 5L2 17V7l10-5z" />
+                <path fill="currentColor" d="M12 2 22 7l-10 5L2 7l10-5z" />
+                <path fill="currentColor" opacity=".72" d="M2 7l10 5v10L2 17V7z" />
+                <path fill="currentColor" opacity=".9" d="M22 7l-10 5v10l10-5V7z" />
+            </symbol>
+            <symbol id="i-flame" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M12.6 1.4c.7 3.7-.9 5.3-2.6 7C8.1 10.2 6.3 12.1 6.3 15.4a5.7 5.7 0 0 0 11.4 0c0-2.7-1.1-4.5-2.2-6.4-.5 1.5-1.4 2.3-2.5 2.3 1.4-3.5.7-7.3-.4-9.9z" />
+            </symbol>
+            <symbol id="i-end" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9.4" fill="none" stroke="currentColor" stroke-width="2.3" opacity=".45" />
+                <circle cx="12" cy="12" r="5.8" fill="none" stroke="currentColor" stroke-width="2" />
+                <circle cx="12" cy="12" r="2.3" fill="currentColor" />
+            </symbol>
+            <symbol id="i-beacon" viewBox="0 0 24 24">
+                <rect x="10" y="0" width="4" height="9" fill="currentColor" opacity=".45" />
+                <path fill="currentColor" d="M12 8.4 3.4 21.6h17.2L12 8.4z" />
+            </symbol>
+            <symbol id="i-grip" viewBox="0 0 24 24">
+                <circle cx="9" cy="6" r="1.7" fill="currentColor" />
+                <circle cx="15" cy="6" r="1.7" fill="currentColor" />
+                <circle cx="9" cy="12" r="1.7" fill="currentColor" />
+                <circle cx="15" cy="12" r="1.7" fill="currentColor" />
+                <circle cx="9" cy="18" r="1.7" fill="currentColor" />
+                <circle cx="15" cy="18" r="1.7" fill="currentColor" />
+            </symbol>
+            <symbol id="i-plus" viewBox="0 0 24 24">
+                <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.6"
+                    stroke-linecap="round" />
+            </symbol>
+            <symbol id="i-pencil" viewBox="0 0 24 24">
+                <path d="M4 20h4L20 8a2.8 2.8 0 0 0-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="1.9"
+                    stroke-linejoin="round" />
+                <path d="M14.5 5.5 18.5 9.5" fill="none" stroke="currentColor" stroke-width="1.9"
+                    stroke-linecap="round" />
+            </symbol>
+        </defs>
+    </svg>
 
-<!-- ================= BARRA FIXA ================= -->
-<div class="sticky-bar">
-  <div class="sticky-inner">
-    <span class="sticky-label">Progresso</span>
-    <div class="xp-wrap" role="progressbar" aria-label="Progresso total" aria-valuemin="0" aria-valuemax="100">
-      <div class="xp-fill" id="xpFill"></div>
+    <!-- ================= BARRA FIXA ================= -->
+    <div class="sticky-bar">
+        <div class="sticky-inner">
+            <span class="sticky-label">Progresso</span>
+            <div class="xp-wrap" role="progressbar" aria-label="Progresso total" aria-valuemin="0" aria-valuemax="100">
+                <div class="xp-fill" id="xpFill"></div>
+            </div>
+            <span class="sticky-pct" id="xpPct">0%</span>
+            <span class="sync-status" id="syncStatus" data-state="local" title="Estado da sincronização">
+                <span class="sync-dot"></span>
+                <span class="sync-text">Local</span>
+            </span>
+        </div>
     </div>
-    <span class="sticky-pct" id="xpPct">0%</span>
-  </div>
-</div>
 
-<div class="wrap">
+    <div class="wrap">
 
-  <header class="hero">
-    <span class="kicker">Minecraft · até 1.21.11</span>
-    <h1>Linha Temporal de <span>Progressão Completa</span></h1>
-    <p>
-      Do primeiro bloco de terra até o farol do Wither. Marque o que já fez, arraste pela alça
-      ⋮⋮ para reordenar, clique em <b>+</b> para criar objetivos ou <b>✎</b> para editar
-      qualquer um deles. Tudo fica salvo automaticamente neste navegador.
-    </p>
-    <div class="hero-meta">
-      <span class="chip">🎯 <b id="statDone">0</b> concluídos</span>
-      <span class="chip">🧱 <b id="statTotal">0</b> objetivos</span>
-      <span class="chip">✨ <b id="statCustom">0</b> personalizados</span>
-      <span class="chip">✏️ <b id="statEdited">0</b> editados</span>
+        <header class="hero">
+            <span class="kicker">Minecraft · até 1.21.11</span>
+            <h1>Linha Temporal de <span>Progressão Completa</span></h1>
+            <p>
+                Do primeiro bloco de terra até o farol do Wither. Marque o que já fez, arraste pela alça
+                ⋮⋮ para reordenar, clique em <b>+</b> para criar objetivos ou <b>✎</b> para editar
+                qualquer um deles. Tudo fica salvo automaticamente neste navegador.
+            </p>
+            <div class="hero-meta">
+                <span class="chip">🎯 <b id="statDone">0</b> concluídos</span>
+                <span class="chip">🧱 <b id="statTotal">0</b> objetivos</span>
+                <span class="chip">✨ <b id="statCustom">0</b> personalizados</span>
+                <span class="chip">✏️ <b id="statEdited">0</b> editados</span>
+            </div>
+            <button class="btn-reset" id="btnReset" type="button">Reiniciar progresso</button>
+
+            <div>
+                <span class="drag-hint">
+                    <svg>
+                        <use href="#i-grip"></use>
+                    </svg>
+                    Arraste pela alça para reordenar &nbsp;·&nbsp; ✎ edita &nbsp;·&nbsp; + cria
+                </span>
+            </div>
+        </header>
+
+        <ol class="timeline" id="timeline"></ol>
+
     </div>
-    <button class="btn-reset" id="btnReset" type="button">Reiniciar progresso</button>
 
-    <div>
-      <span class="drag-hint">
-        <svg><use href="#i-grip"></use></svg>
-        Arraste pela alça para reordenar &nbsp;·&nbsp; ✎ edita &nbsp;·&nbsp; + cria
-      </span>
-    </div>
-  </header>
+    <footer>
+        <b>Salvo localmente</b> via <code>localStorage</code> — nada é enviado para servidores.<br>
+        Progresso, objetivos personalizados, edições e ordem ficam guardados neste navegador.
+    </footer>
 
-  <ol class="timeline" id="timeline"></ol>
-
-</div>
-
-<footer>
-  <b>Salvo localmente</b> via <code>localStorage</code> — nada é enviado para servidores.<br>
-  Progresso, objetivos personalizados, edições e ordem ficam guardados neste navegador.
-</footer>
-
-<script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
+
 </html>

@@ -1,5 +1,21 @@
 import { PHASES, app, getOrderedItems, itemToEditorText } from './state.js';
 
+
+const syncStatusEl = document.getElementById('syncStatus');
+
+export function setSyncStatus(state) {
+  if (!syncStatusEl) return;
+  syncStatusEl.dataset.state = state;
+  const textMap = {
+    local:   'Local',
+    saving:  'Salvando…',
+    synced:  'Sincronizado',
+    error:   'Erro de sync',
+    readonly:'Somente leitura',
+  };
+  syncStatusEl.querySelector('.sync-text').textContent = textMap[state] || 'Local';
+}
+
 /* ---------- Helpers ---------- */
 export function escapeHTML(str) {
   return String(str).replace(/[&<>"']/g, m => ({
@@ -55,7 +71,7 @@ function renderTask(item) {
   const checked = app.progress[item.id] ? 'checked' : '';
   const customBadge = item.custom ? '<span class="custom-badge">personalizado</span>' : '';
   const editedBadge = (item.edited && !item.custom) ? '<span class="edited-badge">editado</span>' : '';
-  const delBtn = item.custom
+  const delBtn = !app.readOnly && item.custom
     ? `<button type="button" class="btn-del" data-del="${item.id}"
               title="Remover objetivo" aria-label="Remover objetivo">×</button>` : '';
   const subsHTML = item.subs?.length
@@ -63,13 +79,13 @@ function renderTask(item) {
 
   return `
     <li class="task">
-      <button type="button" class="drag-handle" draggable="true"
+      ${app.readOnly ? '' : `<button type="button" class="drag-handle" draggable="true"
               aria-label="Arrastar para reordenar" title="Arraste para reordenar">
         ${svgIcon('i-grip', '')}
-      </button>
+      </button>`}
 
       <label class="task-label">
-        <input type="checkbox" data-id="${item.id}" ${checked}>
+        <input type="checkbox" data-id="${item.id}" ${checked} ${app.readOnly ? 'disabled' : ''}>
         <span class="box" aria-hidden="true">
           <svg viewBox="0 0 24 24">
             <path d="M4 12.6 9.4 18 20 6.6" fill="none" stroke="currentColor"
@@ -83,13 +99,13 @@ function renderTask(item) {
         </span>
       </label>
 
-      <div class="task-actions">
+      ${app.readOnly ? '' : `<div class="task-actions">
         <button type="button" class="btn-edit" data-edit="${item.id}"
                 title="Editar objetivo" aria-label="Editar objetivo">
           ${svgIcon('i-pencil', '')}
         </button>
         ${delBtn}
-      </div>
+      </div>`}
     </li>
   `;
 }
@@ -128,10 +144,10 @@ function renderPhase(phase) {
 
           <div class="head-actions">
             <div class="phase-count" data-count="${phase.id}">0/${items.length}</div>
-            <button type="button" class="btn-add-icon" data-add="${phase.id}"
+            ${app.readOnly ? '' : `<button type="button" class="btn-add-icon" data-add="${phase.id}"
                     title="Adicionar objetivo nesta fase" aria-label="Adicionar objetivo nesta fase">
               ${svgIcon('i-plus', '')}
-            </button>
+            </button>`}
           </div>
         </header>
 

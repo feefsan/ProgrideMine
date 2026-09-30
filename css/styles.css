@@ -575,3 +575,56 @@ footer code{
   .task-label{ padding:12px 70px 12px 6px; gap:11px; }
   .drag-handle{ display:none; }
 }
+
+/* ---------- Indicador de sincronização ---------- */
+.sync-status{
+  display:inline-flex; align-items:center; gap:7px;
+  font-size:.72rem; font-weight:800;
+  letter-spacing:.05em;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#0d1117;
+  color:var(--muted);
+  white-space:nowrap;
+  transition:.2s ease;
+}
+.sync-dot{
+  width:7px; height:7px; border-radius:50%;
+  background:#5d6b7d;
+  box-shadow:0 0 6px transparent;
+  transition:.2s ease;
+}
+.sync-status[data-state="local"]   .sync-dot{ background:#8b98a9; }
+.sync-status[data-state="saving"]  .sync-dot{ background:#f0c040; box-shadow:0 0 8px #f0c040; animation:pulse 1s infinite; }
+.sync-status[data-state="synced"]  .sync-dot{ background:#5ec26a; box-shadow:0 0 8px #5ec26a; }
+.sync-status[data-state="error"]   .sync-dot{ background:#d1452f; box-shadow:0 0 8px #d1452f; }
+
+.sync-status[data-state="synced"]  { color:#8ef29a; border-color:rgba(94,194,106,.35); }
+.sync-status[data-state="saving"]  { color:#f5d97a; border-color:rgba(240,192,64,.35); }
+.sync-status[data-state="error"]   { color:#ffb4a8; border-color:rgba(209,69,47,.35); }
+
+@keyframes pulse{
+  0%,100%{ opacity:1; }
+  50%    { opacity:.35; }
+}
+
+@media (max-width:600px){
+  .sync-status .sync-text{ display:none; }
+}
+/* ---------- ACESSO E MODO VISITANTE ---------- */
+body.auth-pending .sticky-bar,body.auth-pending .wrap,body.auth-pending>footer{visibility:hidden}
+.access-gate{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:22px;background:#0b0e13}
+.access-gate[hidden]{display:none}
+.access-card{width:min(440px,100%);padding:32px;background:linear-gradient(180deg,#171d26,#12171f);border:1px solid var(--line);border-radius:10px;box-shadow:0 24px 70px rgba(0,0,0,.6);text-align:center}
+.access-kicker{display:inline-block;margin-bottom:14px;padding:5px 12px;border:1px solid rgba(94,194,106,.3);border-radius:999px;color:#8ef29a;background:rgba(94,194,106,.1);font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.access-card h1{margin:0 0 12px;color:#f2f6fb;font-size:1.7rem}.access-card>p{margin:0 0 20px;color:var(--muted);font-size:.9rem}
+.access-form{text-align:left}.access-form label{display:block;margin:11px 0 5px;color:#b9c5d3;font-size:.78rem;font-weight:800}
+.access-form input{width:100%;padding:11px 12px;color:var(--text);background:#05070a;border:1px solid var(--line);border-radius:6px;font:inherit}.access-form input:focus{outline:2px solid rgba(94,194,106,.3);border-color:#5ec26a}
+.access-primary,.access-secondary{width:100%;margin-top:15px;padding:11px;border-radius:6px;font:800 .8rem inherit;cursor:pointer}.access-primary{color:#08110a;background:#5ec26a;border:1px solid #73d27e}.access-secondary{color:var(--text);background:#0d1117;border:1px solid var(--line)}
+.access-card small{display:block;margin-top:15px;color:#68778a;line-height:1.5}.access-error{padding:9px;color:#ffb4a8;background:rgba(209,69,47,.1);border:1px solid rgba(209,69,47,.35);border-radius:5px;font-size:.78rem}
+.account-actions{display:flex;align-items:center;gap:8px}.access-mode{color:var(--muted);font-size:.72rem;font-weight:800;white-space:nowrap}.btn-session{padding:5px 10px;color:var(--text);background:#0d1117;border:1px solid var(--line);border-radius:5px;font:800 .72rem inherit;cursor:pointer}
+.public-control{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.72rem;font-weight:800;white-space:nowrap}.public-control input{accent-color:#5ec26a}
+body.read-only .btn-reset,body.read-only .btn-add-icon,body.read-only .task-actions,body.read-only .drag-handle,body.read-only .drag-hint{display:none!important}body.read-only .task-label{padding-left:6px;cursor:default}body.read-only .task-label:hover{background:transparent}body.read-only .task-label input{pointer-events:none}
+.sync-status[data-state="readonly"] .sync-dot{background:#79a9e8;box-shadow:0 0 8px #79a9e8}.sync-status[data-state="readonly"]{color:#a9ccfa;border-color:rgba(121,169,232,.35)}
+@media(max-width:760px){.account-actions{gap:5px}.public-control span,.access-mode{display:none}.sticky-inner{flex-wrap:wrap}.sync-status{margin-left:auto}}
