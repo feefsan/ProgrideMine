@@ -22,7 +22,25 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body>
+<body class="auth-pending">
+    <!-- A camada de acesso apenas envolve o front original. -->
+    <section class="access-gate" id="accessGate" aria-labelledby="accessTitle">
+        <div class="access-card">
+            <span class="access-kicker">ProgrideMine</span>
+            <h1 id="accessTitle">Sua jornada no Minecraft</h1>
+            <p>Entre para editar e sincronizar sua jornada ou continue como visitante para visualizar a jornada pública.</p>
+            <form class="access-form" id="loginForm" autocomplete="on">
+                <label for="loginEmail">E-mail</label>
+                <input id="loginEmail" type="email" autocomplete="email" required>
+                <label for="loginPassword">Senha</label>
+                <input id="loginPassword" type="password" autocomplete="current-password" required minlength="6">
+                <p class="access-error" id="loginError" role="alert" hidden></p>
+                <button class="access-primary" type="submit">Entrar</button>
+            </form>
+            <button class="access-secondary" id="guestButton" type="button">Continuar sem login</button>
+            <small>Visitantes não podem marcar, adicionar, editar, excluir ou reordenar objetivos.</small>
+        </div>
+    </section>
 
     <!-- ================= SPRITE DE ÍCONES ================= -->
     <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -82,6 +100,15 @@
                 <span class="sync-dot"></span>
                 <span class="sync-text">Local</span>
             </span>
+            <div class="account-actions" id="accountActions" hidden>
+                <label class="public-control" id="publicControl" hidden>
+                    <input type="checkbox" id="publicToggle">
+                    <span>Jornada pública</span>
+                </label>
+                <span class="access-mode" id="accessMode"></span>
+                <button class="btn-session" id="btnLogin" type="button" hidden>Entrar</button>
+                <button class="btn-session" id="btnLogout" type="button" hidden>Sair</button>
+            </div>
         </div>
     </div>
 
@@ -93,7 +120,7 @@
             <p>
                 Do primeiro bloco de terra até o farol do Wither. Marque o que já fez, arraste pela alça
                 ⋮⋮ para reordenar, clique em <b>+</b> para criar objetivos ou <b>✎</b> para editar
-                qualquer um deles. Tudo fica salvo automaticamente neste navegador.
+                qualquer um deles. Quando você entra, tudo fica sincronizado com segurança no Supabase.
             </p>
             <div class="hero-meta">
                 <span class="chip">🎯 <b id="statDone">0</b> concluídos</span>
@@ -118,8 +145,8 @@
     </div>
 
     <footer>
-        <b>Salvo localmente</b> via <code>localStorage</code> — nada é enviado para servidores.<br>
-        Progresso, objetivos personalizados, edições e ordem ficam guardados neste navegador.
+        <b>Sincronização segura</b> via <code>Supabase</code>.<br>
+        Visitantes acessam somente a jornada que um usuário autorizado tornar pública.
     </footer>
 
     <script type="module" src="js/main.js"></script>
