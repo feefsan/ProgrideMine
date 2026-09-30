@@ -1,5 +1,6 @@
 import { PHASES, app,
          parseBullets,
+         toggleProgress,
          addCustomItem, updateItem, removeCustomItem,
          persistOrder, resetProgress } from './state.js';
 import { renderAll, updateUI, getTimelineEl, setSyncStatus } from './ui.js';
