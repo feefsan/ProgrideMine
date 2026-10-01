@@ -33,10 +33,7 @@ export function svgIcon(id, cls = 'icon') {
 const timelineEl = document.getElementById('timeline');
 const xpFill     = document.getElementById('xpFill');
 const xpPct      = document.getElementById('xpPct');
-const statDone   = document.getElementById('statDone');
-const statTotal  = document.getElementById('statTotal');
-const statCustom = document.getElementById('statCustom');
-const statEdited = document.getElementById('statEdited');
+const journeyTitleEl = document.getElementById('journeyTitle');
 
 export function getTimelineEl() { return timelineEl; }
 
@@ -126,13 +123,142 @@ function renderItem(item) {
   return renderTask(item);
 }
 
+function renderPhaseComposer() {
+  if (!app.isSharedJourney || app.readOnly) return '';
+
+  if (!app.phaseComposerOpen) {
+    return `
+      <li class="phase-composer-trigger" style="--accent:#8ef29a">
+        <button type="button" class="btn-add-phase" data-open-phase-composer
+                title="Adicionar nova fase" aria-label="Adicionar nova fase">
+          ${svgIcon('i-plus', '')}
+        </button>
+      </li>
+    `;
+  }
+
+  return `
+    <li class="phase phase-composer" data-phase="new-phase" style="--accent:#8ef29a">
+      <div class="marker">${svgIcon('i-plus')}</div>
+      <section class="card">
+        <header class="card-head">
+          <div class="head-text">
+            <span class="phase-label">Nova etapa</span>
+            <h2>Nova fase</h2>
+            <p>Defina título, descrição, ordem, ícone e cor visual.</p>
+          </div>
+        </header>
+
+        <form class="phase-composer-form" data-phase-composer>
+          <div class="phase-form-grid">
+            <label class="phase-field">
+              <span>Rótulo</span>
+              <input type="text" name="phaseLabel" placeholder="Fase 6" maxlength="40">
+            </label>
+            <label class="phase-field">
+              <span>Título</span>
+              <input type="text" name="phaseTitle" placeholder="Planejamento final" maxlength="120" required>
+            </label>
+            <label class="phase-field phase-field-full">
+              <span>Descrição</span>
+              <textarea name="phaseDescription" rows="3" maxlength="500" placeholder="Descreva o objetivo desta etapa..."></textarea>
+            </label>
+            <div class="phase-form-row">
+              <label class="phase-field">
+                <span>Cor</span>
+                <input type="color" name="phaseColor" value="#8ef29a">
+              </label>
+              <label class="phase-field">
+                <span>Ícone</span>
+                <select name="phaseIcon">
+                  <option value="i-house">Casa</option>
+                  <option value="i-cube">Cubo</option>
+                  <option value="i-flame">Chama</option>
+                  <option value="i-end">End</option>
+                  <option value="i-beacon">Beacon</option>
+                  <option value="i-plus">Mais</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="mini-form-actions">
+            <button type="button" class="btn-cancel" data-close-phase-composer>Cancelar</button>
+            <button type="submit" class="btn-save">Salvar fase</button>
+          </div>
+        </form>
+      </section>
+    </li>
+  `;
+}
+
 function renderPhase(phase) {
   const items = getOrderedItems(phase);
   const showAddForm = (app.addingPhaseId === phase.id);
+  const isEditing = app.phaseEditingId === phase.id;
+
+  if (isEditing) {
+    return `
+      <li class="phase phase-editing" data-phase="${phase.id}" style="--accent:${phase.color}">
+        <div class="marker">${svgIcon(phase.icon)}</div>
+        <section class="card">
+          <header class="card-head">
+            <div class="head-text">
+              <span class="phase-label">Editar etapa</span>
+              <h2>Editar fase</h2>
+              <p>Atualize os detalhes visuais e a descrição desta etapa.</p>
+            </div>
+          </header>
+
+          <form class="phase-editor-form" data-phase-editor="${phase.id}">
+            <div class="phase-form-grid">
+              <label class="phase-field">
+                <span>Rótulo</span>
+                <input type="text" name="phaseLabel" value="${escapeAttr(phase.label || '')}" maxlength="40" required>
+              </label>
+              <label class="phase-field">
+                <span>Título</span>
+                <input type="text" name="phaseTitle" value="${escapeAttr(phase.title || '')}" maxlength="120" required>
+              </label>
+              <label class="phase-field phase-field-full">
+                <span>Descrição</span>
+                <textarea name="phaseDescription" rows="3" maxlength="500">${escapeHTML(phase.desc || '')}</textarea>
+              </label>
+              <div class="phase-form-row">
+                <label class="phase-field">
+                  <span>Cor</span>
+                  <input type="color" name="phaseColor" value="${escapeAttr(phase.color || '#5ec26a')}">
+                </label>
+                <label class="phase-field">
+                  <span>Ícone</span>
+                  <select name="phaseIcon">
+                    ${['i-house:Casa', 'i-cube:Cubo', 'i-flame:Chama', 'i-end:End', 'i-beacon:Beacon', 'i-plus:Mais']
+                      .map((option) => {
+                        const [value, label] = option.split(':');
+                        return `<option value="${value}" ${phase.icon === value ? 'selected' : ''}>${label}</option>`;
+                      }).join('')}
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="mini-form-actions">
+              <button type="button" class="btn-cancel" data-close-phase-editor>Cancelar</button>
+              <button type="submit" class="btn-save">Salvar fase</button>
+            </div>
+          </form>
+        </section>
+      </li>
+    `;
+  }
 
   return `
     <li class="phase" data-phase="${phase.id}" style="--accent:${phase.color}">
-      <div class="marker">${svgIcon(phase.icon)}</div>
+      <div class="marker">
+        ${svgIcon(phase.icon)}
+        ${app.readOnly ? '' : `<button type="button" class="phase-edit-trigger" data-edit-phase="${phase.id}"
+          title="Editar fase" aria-label="Editar fase">${svgIcon('i-wrench', '')}</button>`}
+      </div>
 
       <section class="card">
         <header class="card-head">
@@ -168,14 +294,15 @@ function renderPhase(phase) {
 /* ---------- Render principal ---------- */
 export function renderAll() {
   const scrollY = window.scrollY;
-  timelineEl.innerHTML = PHASES.map(renderPhase).join('');
+  if (journeyTitleEl) journeyTitleEl.textContent = app.journeyTitle || 'Sua jornada';
+  timelineEl.innerHTML = `${PHASES.map(renderPhase).join('')}${renderPhaseComposer()}`;
   updateUI();
   window.scrollTo(0, scrollY);
 }
 
 /* ---------- Barra de progresso + contadores ---------- */
 export function updateUI() {
-  let done = 0, total = 0, customCount = 0, editedCount = 0;
+  let done = 0, total = 0;
 
   PHASES.forEach(phase => {
     const items = getOrderedItems(phase);
@@ -184,8 +311,6 @@ export function updateUI() {
     items.forEach(item => {
       const cb = timelineEl.querySelector(`input[data-id="${CSS.escape(item.id)}"]`);
       if (cb && cb.checked) phaseDone++;
-      if (item.custom) customCount++;
-      if (item.edited && !item.custom) editedCount++;
     });
 
     done  += phaseDone;
@@ -202,10 +327,5 @@ export function updateUI() {
 
   xpFill.style.width = pct + '%';
   xpPct.textContent  = pct + '%';
-  statDone.textContent   = done;
-  statTotal.textContent  = total;
-  statCustom.textContent = customCount;
-  statEdited.textContent = editedCount;
-
   xpFill.parentElement.setAttribute('aria-valuenow', String(pct));
 }

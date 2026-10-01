@@ -14,3 +14,36 @@ export async function signOut(){const c=await getClient();if(c)await c.auth.sign
 export async function getUser(){if(cachedUser)return cachedUser;const s=await getSession();return s?.user||null}
 export async function getSupabase(){return getClient()}
 export function isEnabled(){return SUPABASE_ENABLED}
+
+export async function checkRealtimeStatus() {
+  if (!SUPABASE_ENABLED) return { enabled: false, connected: false, reason: 'Supabase desativado' };
+
+  const client = await getClient();
+  if (!client || !client.realtime) {
+    return { enabled: false, connected: false, reason: 'Realtime indisponível neste cliente' };
+  }
+
+  const channel = client.channel('progridemine-realtime-status');
+
+  try {
+    const result = await new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        resolve({ enabled: true, connected: false, reason: 'Timeout ao conectar no Realtime' });
+      }, 3000);
+
+      channel.subscribe((state) => {
+        clearTimeout(timeout);
+        const payload = {
+          enabled: true,
+          connected: state === 'SUBSCRIBED',
+          reason: state,
+        };
+        resolve(payload);
+      });
+    });
+
+    return result;
+  } finally {
+    client.removeChannel(channel);
+  }
+}

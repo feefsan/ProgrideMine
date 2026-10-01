@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
 
     <title>Linha Temporal de Progressão — Minecraft 1.21</title>
     <meta name="description"
@@ -19,7 +21,7 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=20261001-4">
 </head>
 
 <body class="auth-pending">
@@ -85,6 +87,10 @@
                 <path d="M14.5 5.5 18.5 9.5" fill="none" stroke="currentColor" stroke-width="1.9"
                     stroke-linecap="round" />
             </symbol>
+            <symbol id="i-wrench" viewBox="0 0 24 24">
+                <path d="M21.2 6.2a5.7 5.7 0 0 1-7.5 7.5L6.2 21.2a2.1 2.1 0 1 1-3-3l7.5-7.5a5.7 5.7 0 0 1 7.5-7.5l-3.5 3.5 2.6 2.6 3.9-3.1Z"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </symbol>
         </defs>
     </svg>
 
@@ -101,10 +107,21 @@
                 <span class="sync-text">Local</span>
             </span>
             <div class="account-actions" id="accountActions" hidden>
-                <label class="public-control" id="publicControl" hidden>
-                    <input type="checkbox" id="publicToggle">
-                    <span>Jornada pública</span>
-                </label>
+                <div class="journeys-menu" id="journeysMenu" hidden>
+                    <button class="journeys-trigger" id="journeysTrigger" type="button" aria-expanded="false"
+                        aria-haspopup="menu" aria-controls="journeysDropdown">
+                        Jornadas
+                    </button>
+                    <div class="journeys-dropdown" id="journeysDropdown" role="menu" hidden>
+                        <button class="journeys-option" id="btnSelectJourney" type="button" role="menuitem">Selecionar jornada</button>
+                        <button class="journeys-option" id="btnCreateJourney" type="button" role="menuitem">Criar nova jornada</button>
+                        <button class="journeys-option journeys-visibility-option" id="btnToggleJourneyVisibility"
+                            type="button" role="menuitem" hidden>Tornar jornada pública</button>
+                        <button class="journeys-option" id="btnManageMembers"
+                            type="button" role="menuitem" hidden>Gerenciar membros</button>
+                    </div>
+                </div>
+                <button class="journeys-backdrop" id="journeysBackdrop" type="button" aria-label="Fechar menu de jornadas" hidden></button>
                 <span class="access-mode" id="accessMode"></span>
                 <button class="btn-session" id="btnLogin" type="button" hidden>Entrar</button>
                 <button class="btn-session" id="btnLogout" type="button" hidden>Sair</button>
@@ -115,29 +132,8 @@
     <div class="wrap">
 
         <header class="hero">
-            <span class="kicker">Minecraft · até 1.21.11</span>
-            <h1>Linha Temporal de <span>Progressão Completa</span></h1>
-            <p>
-                Do primeiro bloco de terra até o farol do Wither. Marque o que já fez, arraste pela alça
-                ⋮⋮ para reordenar, clique em <b>+</b> para criar objetivos ou <b>✎</b> para editar
-                qualquer um deles. Quando você entra, tudo fica sincronizado com segurança no Supabase.
-            </p>
-            <div class="hero-meta">
-                <span class="chip">🎯 <b id="statDone">0</b> concluídos</span>
-                <span class="chip">🧱 <b id="statTotal">0</b> objetivos</span>
-                <span class="chip">✨ <b id="statCustom">0</b> personalizados</span>
-                <span class="chip">✏️ <b id="statEdited">0</b> editados</span>
-            </div>
+            <h1 id="journeyTitle">Sua jornada</h1>
             <button class="btn-reset" id="btnReset" type="button">Reiniciar progresso</button>
-
-            <div>
-                <span class="drag-hint">
-                    <svg>
-                        <use href="#i-grip"></use>
-                    </svg>
-                    Arraste pela alça para reordenar &nbsp;·&nbsp; ✎ edita &nbsp;·&nbsp; + cria
-                </span>
-            </div>
         </header>
 
         <ol class="timeline" id="timeline"></ol>
@@ -149,7 +145,83 @@
         Visitantes acessam somente a jornada que um usuário autorizado tornar pública.
     </footer>
 
-    <script type="module" src="js/main.js"></script>
+    <dialog class="members-dialog" id="membersDialog" aria-labelledby="membersDialogTitle">
+        <div class="members-dialog-content">
+            <header class="members-dialog-header">
+                <div>
+                    <span class="members-dialog-kicker">Jornada compartilhada</span>
+                    <h2 id="membersDialogTitle">Gerenciar membros</h2>
+                </div>
+                <button class="members-dialog-close" id="btnCloseMembersDialog" type="button"
+                    aria-label="Fechar gerenciamento de membros">×</button>
+            </header>
+
+            <form class="members-add-form" id="memberAddForm">
+                <label for="memberSelect">Adicionar usuário como editor</label>
+                <div class="members-add-row">
+                    <select id="memberSelect" required></select>
+                    <button class="btn-save" id="btnAddMember" type="submit">Adicionar e salvar</button>
+                </div>
+                <small class="members-save-hint">A inclusão é salva imediatamente nesta jornada.</small>
+            </form>
+
+            <p class="members-feedback" id="membersFeedback" role="alert" hidden></p>
+            <ul class="members-list" id="membersList" aria-live="polite"></ul>
+        </div>
+    </dialog>
+
+    <dialog class="journey-dialog" id="createJourneyDialog" aria-labelledby="createJourneyDialogTitle">
+        <form class="journey-dialog-content" id="createJourneyForm">
+            <header class="members-dialog-header">
+                <div>
+                    <span class="members-dialog-kicker">Nova jornada</span>
+                    <h2 id="createJourneyDialogTitle">Criar jornada</h2>
+                </div>
+                <button class="members-dialog-close" id="btnCloseCreateJourneyDialog" type="button"
+                    aria-label="Fechar criação de jornada">×</button>
+            </header>
+            <label class="journey-dialog-label" for="createJourneyTitle">Nome da jornada</label>
+            <input class="journey-dialog-input" id="createJourneyTitle" name="title" type="text"
+                maxlength="120" placeholder="Nossa jornada" required autofocus>
+            <p class="members-feedback" id="createJourneyFeedback" role="alert" hidden></p>
+            <div class="journey-dialog-actions">
+                <button class="btn-cancel" id="btnCancelCreateJourney" type="button">Cancelar</button>
+                <button class="btn-save" id="btnConfirmCreateJourney" type="submit">Criar jornada</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog class="journey-dialog" id="selectJourneyDialog" aria-labelledby="selectJourneyDialogTitle">
+        <div class="journey-dialog-content">
+            <header class="members-dialog-header">
+                <div>
+                    <span class="members-dialog-kicker">Suas jornadas</span>
+                    <h2 id="selectJourneyDialogTitle">Selecionar jornada</h2>
+                </div>
+                <button class="members-dialog-close" id="btnCloseSelectJourneyDialog" type="button"
+                    aria-label="Fechar seleção de jornada">×</button>
+            </header>
+            <p class="journey-picker-hint">Escolha a jornada que deseja abrir.</p>
+            <ul class="journey-picker-list" id="journeyPickerList"></ul>
+        </div>
+    </dialog>
+
+    <dialog class="journey-dialog" id="publicJourneyDialog" aria-labelledby="publicJourneyDialogTitle">
+        <div class="journey-dialog-content">
+            <header class="members-dialog-header">
+                <div>
+                    <span class="members-dialog-kicker">Acesso de visitante</span>
+                    <h2 id="publicJourneyDialogTitle">Jornadas públicas</h2>
+                </div>
+                <button class="members-dialog-close" id="btnClosePublicJourneyDialog" type="button"
+                    aria-label="Fechar seleção de jornadas públicas">×</button>
+            </header>
+            <p class="journey-picker-hint">Escolha a jornada pública que deseja visualizar.</p>
+            <ul class="journey-picker-list" id="publicJourneyPickerList"></ul>
+        </div>
+    </dialog>
+
+    <script type="module" src="js/main.js?v=20261001-3"></script>
 </body>
 
 </html>
